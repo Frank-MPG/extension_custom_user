@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "MPG / MPP / L1 – Outils",
+  "version": "2.9.0",
+  "description": "Custom user en un clic sur mpg.football, mpp.football et ligue1.com, et version Bureau forcée sur MPG / MPP.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://mpg.football/*",
+    "*://*.mpg.football/*",
+    "http://localhost/*",
+    "*://mpp.football/*",
+    "*://*.mpp.football/*",
+    "*://ligue1.com/*",
+    "*://*.ligue1.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "MPG / MPP / L1 – Outils"
+  },
+  "background": {
+    "service_worker": "autoreload.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://mpg.football/*",
+        "*://*.mpg.football/*",
+        "http://localhost/*",
+        "*://mpp.football/*",
+        "*://*.mpp.football/*"
+      ],
+      "js": [
+        "src/desktop.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://mpg.football/*",
+        "*://*.mpg.football/*",
+        "http://localhost/*",
+        "*://mpp.football/*",
+        "*://*.mpp.football/*"
+      ],
+      "js": [
+        "src/user-capture.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://mpg.football/*",
+        "*://*.mpg.football/*",
+        "http://localhost/*",
+        "*://mpp.football/*",
+        "*://*.mpp.football/*",
+        "*://ligue1.com/*",
+        "*://*.ligue1.com/*"
+      ],
+      "js": [
+        "src/history.js",
+        "src/custom-user.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font:13px system-ui,sans-serif;width:300px;margin:0;padding:12px;background:#0f1a14;color:#e8f2ec}
+input[type=text]{width:100%;box-sizing:border-box;padding:8px;border-radius:6px;border:1px solid #2e4a3a;background:#17261d;color:inherit}
+.row{display:flex;gap:6px;margin-top:8px}
+button{flex:1;padding:7px;border:0;border-radius:6px;cursor:pointer;font-weight:600}
+#apply{background:#3ddc84;color:#06200f}#reset{background:#2e4a3a;color:#e8f2ec}
+ul{list-style:none;padding:0;margin:10px 0 0;max-height:220px;overflow:auto}
+li{display:flex;align-items:center;gap:4px;padding:5px 6px;border-radius:5px;cursor:pointer}
+li:hover{background:#17261d}li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+li b{color:#7fa08c;font-weight:400;padding:0 4px} li .pin{display:flex;align-items:center;color:#7fa08c;opacity:0;cursor:pointer;padding:0 2px;transition:opacity .15s,color .15s} li:hover .pin{opacity:.8} li .pin:hover{color:#e8f2ec;opacity:1} li.pinned .pin{opacity:1;color:#3ddc84} li.pinned .pin svg{fill:#3ddc84} li.pinned + li:not(.pinned){border-top:1px solid #2e4a3a;margin-top:4px;padding-top:9px}
+#q{width:100%}.opts{margin-top:8px;padding-top:8px;border-top:1px solid #2e4a3a;display:flex;flex-direction:column;gap:4px}.opts label{display:flex;gap:6px;align-items:center;color:#9fbcaa;cursor:pointer}.opts input{width:auto;margin:0}.gear{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8px;padding:6px 8px;background:transparent;color:#9fbcaa;border:1px solid #2e4a3a;border-radius:6px;cursor:pointer;font:600 12px system-ui,sans-serif}.gear:hover{background:#17261d;color:#e8f2ec}.gear .chev{transition:transform .2s}.gear.open .chev{transform:rotate(180deg)}.opts:not(.open){display:none}.opts{border-top:0!important;padding:8px 2px 0!important;margin-top:0!important}
+.hh{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:#7fa08c;font-size:11px;text-transform:uppercase;letter-spacing:.05em}.hh a{cursor:pointer;color:#9fbcaa;text-transform:none;letter-spacing:0;font-size:12px}.hh a:hover{color:#ff8a8a}.hh a.confirm{color:#ff6b6b;font-weight:600}ul:empty{display:none}
+#msg{margin-top:8px;min-height:16px;color:#9fbcaa}
+.foot{display:flex;justify-content:flex-end;margin-top:6px;padding-top:8px;border-top:1px solid #2e4a3a;color:#9fbcaa}
+</style></head><body>
+<input id="q" type="text" placeholder="userId / shortId / email  (Entrée)" autofocus>
+<div class="row"><button id="apply">Apply custom user</button><button id="reset">Reset</button></div>
+<div class="hh" id="hh"><span>Historique</span><a id="clear">Clear all</a></div><ul id="hist"></ul>
+<button class="gear" id="gear" type="button"><span>⚙ Réglages</span><span class="chev">▾</span></button><div class="opts"><label><input type="checkbox" id="optRainbow"> Effet arc-en-ciel quand actif</label><label><input type="checkbox" id="optBanner"> Bandeau rouge « Connecté avec »</label><label><input type="checkbox" id="optDesktop"> Toujours la version Bureau (recharge)</label></div><div id="msg"></div><div class="foot" data-mpg-update></div>
+<script src="../src/history.js"></script><script src="popup.js"></script><script src="../update.js"></script></body></html>
