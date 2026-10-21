@@ -33,14 +33,28 @@
       if (window.top === window) location.reload();
     }
   }
-  // Libellé du bouton : userId custom si le bandeau est caché
+  // Username du custom user actif, lu dans l'historique (complété par resolve() via user-capture.js)
+  let curUsername;
+  async function refreshUsername() {
+    const ids = currentIds();
+    let name;
+    if (ids && ids.identifier) {
+      const h = await MpgHist.get();
+      const e = h.find(x => x.identifier === ids.identifier && x.username) || (ids.mpgId && h.find(x => x.userId === ids.mpgId && x.username));
+      name = e ? e.username : undefined;
+    }
+    if (name !== curUsername) { curUsername = name; updateLabel(); }
+  }
+  chrome.storage.onChanged.addListener(ch => { if (ch.hist || ch.hist_dev) refreshUsername(); });
+  refreshUsername();
+  // Libellé du bouton : username (sinon userId) du custom user si le bandeau est caché
   function updateLabel() {
     const el = document.getElementById(ID); if (!el) return;
     const leaf = el.querySelector('[data-mpgcu-label]'); if (!leaf) return;
-    const uid = currentUserId();
-    const txt = uid && !settings.banner ? uid : 'Custom user';
+    const uid = currentUserId(), show = uid && !settings.banner;
+    const txt = show ? curUsername || uid : 'Custom user';
     if (leaf.textContent !== txt) leaf.textContent = txt;
-    leaf.title = uid && !settings.banner ? 'Connecté avec : ' + uid : '';
+    leaf.title = show ? 'Connecté avec : ' + uid + (curUsername ? ' - ' + curUsername : '') : '';
   }
   // Bandeau rouge "Connecté avec : <userId>"
   // MPG : <span>Connecté avec : …</span> ; MPP : <div>Connected as: …</div> ; L1 : <h4>Connecté avec: …</h4>. Le parent direct est la barre rouge.

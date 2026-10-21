@@ -6,6 +6,7 @@ Extension Chrome (MV3) pour mpg.football, mpp.football et ligue1.com.
 |---|---|
 | `src/desktop.js` | Force la version Bureau (MPG et MPP, breakpoint 1280px) (monde MAIN, `document_start`). Désactivable dans Réglages. |
 | `src/custom-user.js` | Entrée « Custom user » du header : apply/reset via une iframe `/debug` cachée, historique, réglages. |
+| _Libellé de l'entrée_ | Bandeau rouge masqué → l'entrée du header affiche le username du custom user (lu dans l'historique), sinon son userId. |
 | `src/history.js` | Historique partagé (content script + popup) : `userId - username`, clear all. |
 | `src/user-capture.js` | Lit la réponse `GET /user` (monde MAIN) pour récupérer le username du user affiché. |
 | `popup/` | Popup du bouton de l'extension (custom user + réglages). |

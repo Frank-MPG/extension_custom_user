@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MPG / MPP / L1 – Custom user",
-  "version": "2.10.0",
+  "version": "2.11.0",
   "description": "Custom user en un clic sur mpg.football, mpp.football et ligue1.com, et version Bureau forcée sur MPG / MPP.",
   "homepage_url": "https://github.com/frank-mpg/extension_custom_user",
   "icons": {
