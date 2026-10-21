@@ -1,4 +1,4 @@
-# MPG / MPP / L1 – Outils
+# MPG / MPP / L1 – Custom user
 
 Extension Chrome (MV3) pour mpg.football, mpp.football et ligue1.com.
 
