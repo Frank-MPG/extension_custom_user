@@ -52,7 +52,7 @@
     const el = document.getElementById(ID); if (!el) return;
     const leaf = el.querySelector('[data-mpgcu-label]'); if (!leaf) return;
     const uid = currentUserId(), show = uid && !settings.banner;
-    const txt = show ? curUsername || uid : 'Custom user';
+    const txt = show ? curUsername || uid : uid ? 'Custom user' : 'Swap';
     if (leaf.textContent !== txt) leaf.textContent = txt;
     leaf.title = show ? 'Connecté avec : ' + uid + (curUsername ? ' - ' + curUsername : '') : '';
   }
@@ -279,6 +279,14 @@
   }
 
   // ---------- Entrée dans le header ----------
+  // Icône (repère 32×32, cadre en 6.8–25.2) : actif = cadre + personne + pastille rouge ; inactif = personne + « + » (bouton « Swap »)
+  const glyph = (c, active) => active
+    ? `<rect class="mpgcu-frame" x="6.8" y="6.8" width="18.4" height="18.4" rx="5.6" stroke="${c}" stroke-width="2.4"/>` +
+      `<g class="mpgcu-person" stroke="${c}" stroke-width="2.2" stroke-linecap="round">` +
+      '<circle cx="16" cy="13.7" r="2.8"/><path d="M11.4 21.3c.9-2.2 2.6-3.3 4.6-3.3s3.7 1.1 4.6 3.3"/></g>' +
+      '<circle class="mpgcu-dot" cx="24.6" cy="7.4" r="3.6" fill="#E8394D" stroke="#fff" stroke-width="1.6"/>'
+    : `<g class="mpgcu-person" transform="translate(4 4)" stroke="${c}" stroke-width="2" stroke-linecap="round">` +
+      '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 19c1-3.4 3.4-5 6.5-5 1.4 0 2.6.3 3.6 1"/><path d="M18 14v6M15 17h6"/></g>';
   function injectStyle() {
     if (document.getElementById('mpgcu-style')) return;
     const st = document.createElement('style'); st.id = 'mpgcu-style';
@@ -297,6 +305,9 @@
       #${ID}.mpgcu-active > ${PILL}{position:relative;background:linear-gradient(90deg,#ff004c33,#ff8a0033,#ffe60033,#2bff8833,#00c2ff33,#7a5cff33,#ff00c833,#ff004c33) 0 0/300px 100% repeat-x;animation:mpgcu-rainbow 2.5s linear infinite}
       #${ID}.mpgcu-active > ${PILL}::before{content:'';position:absolute;inset:-1px;border-radius:inherit;padding:2px;background:linear-gradient(90deg,#ff004c,#ff8a00,#ffe600,#2bff88,#00c2ff,#7a5cff,#ff00c8,#ff004c) 0 0/300px 100% repeat-x;animation:mpgcu-rainbow 2.5s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
       @keyframes mpgcu-rainbow{to{background-position:300px 0}}
+      #${ID}.mpgcu-idle > ${PILL}{border:1.5px dashed rgba(255,255,255,.4)!important;border-radius:999px!important}` +
+      (!IS_MPP && !IS_L1 ? `
+      #${ID}.mpgcu-idle > div{padding:4px 12px 4px 6px!important}` : '') + `
       @media (prefers-reduced-motion: reduce){#${ID} *{animation:none!important}}` +
       // MPP : l'entrée n'a pas de fond « pilule » → on en crée une sans décaler la mise en page
       (IS_MPP ? `
@@ -332,6 +343,7 @@
     }
     const active = !!currentIdentifier();
     if (active) { el.title = 'Custom user actif : ' + currentIdentifier(); if (settings.rainbow) el.classList.add('mpgcu-active'); }
+    else el.classList.add('mpgcu-idle');
     injectStyle();
     const refSvg = ref.querySelector('svg'), oldSvg = el.querySelector('svg');
     const r = refSvg.getBoundingClientRect(), c = leafOf(ref) ? getComputedStyle(leafOf(ref)).color : '#fff';
@@ -339,11 +351,7 @@
     const tmp = document.createElement('div');
     tmp.innerHTML =
       `<svg class="mpgcu-icn" width="${w}" height="${h}" viewBox="4 4 24 24" fill="none" style="display:block;overflow:visible;flex-shrink:0">` +
-      `<rect class="mpgcu-frame" x="6.8" y="6.8" width="18.4" height="18.4" rx="5.6" stroke="${c}" stroke-width="2.4"/>` +
-      `<g class="mpgcu-person" stroke="${c}" stroke-width="2.2" stroke-linecap="round">` +
-      '<circle cx="16" cy="13.7" r="2.8"/><path d="M11.4 21.3c.9-2.2 2.6-3.3 4.6-3.3s3.7 1.1 4.6 3.3"/></g>' +
-      (active ? '<circle class="mpgcu-dot" cx="24.6" cy="7.4" r="3.6" fill="#E8394D" stroke="#fff" stroke-width="1.6"/>' : '') +
-      '</svg>';
+      glyph(c, active) + '</svg>';
     const svg = tmp.firstElementChild;
     const ocs = getComputedStyle(refSvg);
     svg.style.marginRight = ocs.marginRight; svg.style.marginLeft = ocs.marginLeft;
@@ -391,16 +399,13 @@
     }
     const active = !!currentIdentifier();
     if (active) { el.title = 'Custom user actif : ' + currentIdentifier(); if (settings.rainbow) el.classList.add('mpgcu-active'); }
+    else el.classList.add('mpgcu-idle');
     injectStyle();
     const c = leaf ? getComputedStyle(leaf).color : '#fff';
     const slot = a.firstElementChild && a.firstElementChild !== leaf ? a.firstElementChild : null;
     const svg =
       '<svg class="mpgcu-icn" width="20" height="20" viewBox="4 4 24 24" fill="none" style="display:block;overflow:visible">' +
-      `<rect class="mpgcu-frame" x="6.8" y="6.8" width="18.4" height="18.4" rx="5.6" stroke="${c}" stroke-width="2.4"/>` +
-      `<g class="mpgcu-person" stroke="${c}" stroke-width="2.2" stroke-linecap="round">` +
-      '<circle cx="16" cy="13.7" r="2.8"/><path d="M11.4 21.3c.9-2.2 2.6-3.3 4.6-3.3s3.7 1.1 4.6 3.3"/></g>' +
-      (active ? '<circle class="mpgcu-dot" cx="24.6" cy="7.4" r="3.6" fill="#E8394D" stroke="#fff" stroke-width="1.6"/>' : '') +
-      '</svg>';
+      glyph(c, active) + '</svg>';
     if (slot) { slot.innerHTML = svg; slot.style.marginRight = '6px'; }
     const open = e => { e.preventDefault(); e.stopPropagation(); toggle(el); };
     a.addEventListener('click', open);
@@ -426,16 +431,12 @@
     }
     const active = !!currentIdentifier();
     if (active) { el.title = 'Custom user actif : ' + currentIdentifier(); if (settings.rainbow) el.classList.add('mpgcu-active'); }
+    else el.classList.add('mpgcu-idle');
     injectStyle();
     const iconSlot = el.firstElementChild && el.firstElementChild.firstElementChild;
     if (iconSlot && iconSlot !== leaf) iconSlot.innerHTML =
       '<svg class="mpgcu-icn" width="32" height="32" viewBox="0 0 32 32" fill="none" style="display:block;overflow:visible">' +
-      '<rect class="mpgcu-frame" x="6.8" y="6.8" width="18.4" height="18.4" rx="5.6" stroke="#fff" stroke-width="2.4"/>' +
-      '<g class="mpgcu-person" stroke="#fff" stroke-width="2.2" stroke-linecap="round">' +
-      '<circle cx="16" cy="13.7" r="2.8"/><path d="M11.4 21.3c.9-2.2 2.6-3.3 4.6-3.3s3.7 1.1 4.6 3.3"/></g>' +
-      (active ? '<circle class="mpgcu-dot" cx="24.6" cy="7.4" r="3.6" fill="#E8394D" stroke="#fff" stroke-width="1.6"/>' : '') +
-      '</svg>';
-    injectStyle();
+      glyph('#fff', active) + '</svg>';
     el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggle(el); });
     el.addEventListener('mousedown', e => e.stopPropagation());
     ref.parentElement.append(el);
