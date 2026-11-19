@@ -75,7 +75,8 @@
   async function viaHiddenDebug(mode, value) {
     const f = document.createElement('iframe');
     f.style.cssText = 'position:fixed;left:-99999px;top:0;width:1300px;height:800px;visibility:hidden;pointer-events:none';
-    f.src = location.origin + DEBUG_PATH;
+    // Le HTML n'a pas de Cache-Control : sans ce paramètre, Chrome peut servir un /debug périmé dont le bundle JS a disparu (404) → page vide
+    f.src = location.origin + DEBUG_PATH + '?mpgcu=' + Date.now();
     document.documentElement.append(f);
     try {
       const label = mode === 'apply' ? 'Apply custom user' : 'Reset custom user';
