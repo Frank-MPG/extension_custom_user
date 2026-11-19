@@ -178,6 +178,11 @@
     </div>`;
     const [o, i] = s.querySelectorAll('.num');
     o.textContent = out; o.title = out; i.textContent = inn; i.title = inn;
+    // Username du user entrant s'il est déjà dans l'historique (sinon on garde l'id saisi)
+    if (mode === 'apply') MpgHist.get().then(h => {
+      const e = h.find(x => (x.identifier === value || x.userId === value) && x.username);
+      if (e) { i.textContent = e.username; i.title = value + ' - ' + e.username; }
+    });
     const msg = s.querySelector('.msg');
     let k = 0; msg.textContent = lines[0];
     const timer = setInterval(() => {
