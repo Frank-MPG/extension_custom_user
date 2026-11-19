@@ -114,10 +114,10 @@
   async function run(mode, value) {
     value = (value || '').trim();
     if (mode === 'apply' && !value) return 'Renseigne un userId / shortId / email';
-    toast('…');
+    const hideLoader = showLoader(mode, value);
     document.getElementById(ID)?.classList.add('mpgcu-busy');
     const r = await viaHiddenDebug(mode, value);
-    if (r !== 'ok') { document.getElementById(ID)?.classList.remove('mpgcu-busy'); toast(r, true); return r; }
+    if (r !== 'ok') { hideLoader(); document.getElementById(ID)?.classList.remove('mpgcu-busy'); toast(r, true); return r; }
     if (mode === 'apply') { await MpgHist.add(value, SITE); sessionStorage.setItem('mpgcu_applied', String(Date.now())); }
     sessionStorage.setItem('mpgcu_toast', mode === 'apply' ? 'Custom user : ' + value : 'Custom user reset');
     location.reload();
@@ -128,6 +128,65 @@
   chrome.runtime.onMessage.addListener((msg, _s, reply) => {
     if (msg && msg.mpgcu) { run(msg.mode, msg.value).then(reply); return true; }
   });
+
+  // ---------- Écran de chargement : panneau de remplacement du 4e arbitre ----------
+  // Rouge = user qui sort, vert = user qui entre. Reste affiché jusqu'au rechargement (succès) ou retiré (erreur).
+  function showLoader(mode, value) {
+    const out = curUsername || currentUserId() || 'Moi';
+    const inn = mode === 'apply' ? value : 'Moi';
+    const lines = mode === 'apply'
+      ? ['Le 4e arbitre lève le panneau…', 'Échauffement le long de la ligne…', 'Vérification de la licence…', 'Check VAR en cours…', 'Le coach donne les consignes…']
+      : ['Retour au vestiaire…', 'On rend le maillot…', 'Le titulaire revient…', 'Check VAR en cours…'];
+    const h = document.createElement('div');
+    h.style.cssText = 'position:fixed;inset:0;z-index:2147483647';
+    const s = h.attachShadow({ mode: 'open' });
+    s.innerHTML = `<style>
+      .bg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+        background:radial-gradient(ellipse at center,#0d3b22e6,#03140bf2 70%);backdrop-filter:blur(6px);font:600 15px system-ui,sans-serif;color:#e8f2ec;animation:fade .25s ease}
+      .bg::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.04;
+        background:repeating-linear-gradient(90deg,#fff 0 80px,transparent 80px 160px)}
+      .board{position:relative;width:min(340px,86vw);padding:18px 18px 14px;border-radius:16px;background:#111;border:3px solid #2a2a2a;
+        box-shadow:0 0 0 6px #1b1b1b,0 24px 60px #000c;animation:raise .6s cubic-bezier(.3,1.5,.5,1) both}
+      .board::after{content:'';position:absolute;left:50%;bottom:-46px;width:16px;height:44px;transform:translateX(-50%);background:linear-gradient(90deg,#222,#444,#222);border-radius:0 0 6px 6px}
+      .row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;background:#000;
+        background-image:radial-gradient(#ffffff10 1px,transparent 1.5px);background-size:5px 5px}
+      .row+.row{margin-top:10px}
+      .arr{font-size:26px;line-height:1;animation:bob 1s ease-in-out infinite}
+      .num{flex:1;min-width:0;font:700 28px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:flick 2.4s steps(1) infinite}
+      .out{color:#ff3b3b;text-shadow:0 0 6px #ff3b3b,0 0 18px #ff3b3b88}
+      .in{color:#2bff88;text-shadow:0 0 6px #2bff88,0 0 18px #2bff8888}
+      .in .arr{animation-direction:reverse}
+      .lbl{font-size:10px;letter-spacing:.2em;opacity:.6;color:#fff;text-shadow:none;writing-mode:vertical-rl;transform:rotate(180deg)}
+      .msg{min-height:20px;text-shadow:0 1px 4px #000;margin-top:30px;transition:opacity .25s}
+      .pitch{position:relative;width:min(300px,76vw);height:2px;background:#ffffff40;border-radius:2px}
+      .ball{position:absolute;top:-9px;left:0;font-size:18px;animation:roll 1.8s ease-in-out infinite alternate}
+      @keyframes fade{from{opacity:0}}
+      @keyframes raise{from{transform:translateY(60px) scale(.9);opacity:0}}
+      @keyframes bob{50%{transform:translateY(5px)}}
+      @keyframes flick{0%,100%{opacity:1}48%{opacity:1}50%{opacity:.35}52%{opacity:1}}
+      @keyframes roll{from{left:0;transform:rotate(0)}to{left:calc(100% - 18px);transform:rotate(720deg)}}
+      @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+    </style>
+    <div class="bg" role="status" aria-live="polite">
+      <div class="board">
+        <div class="row out"><span class="lbl">OUT</span><span class="arr">▼</span><span class="num"></span></div>
+        <div class="row in"><span class="lbl">IN</span><span class="arr">▲</span><span class="num"></span></div>
+      </div>
+      <div class="msg"></div>
+      <div class="pitch"><span class="ball">⚽</span></div>
+    </div>`;
+    const [o, i] = s.querySelectorAll('.num');
+    o.textContent = out; o.title = out; i.textContent = inn; i.title = inn;
+    const msg = s.querySelector('.msg');
+    let k = 0; msg.textContent = lines[0];
+    const timer = setInterval(() => {
+      msg.style.opacity = 0;
+      setTimeout(() => { msg.textContent = lines[++k % lines.length]; msg.style.opacity = 1; }, 250);
+    }, 2200);
+    document.documentElement.append(h);
+    return () => { clearInterval(timer); h.remove(); };
+  }
 
   // ---------- UI ----------
   let host, root, toastEl;
